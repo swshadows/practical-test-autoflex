@@ -1,0 +1,40 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Product {
+  id        Int               @id @default(autoincrement())
+  name      String
+  value     Float
+  materials ProductMaterial[]
+
+  created_at DateTime @default(now())
+}
+
+model Material {
+  id             Int               @id @default(autoincrement())
+  name           String
+  stock_quantity Int
+  products       ProductMaterial[]
+
+  created_at DateTime @default(now())
+}
+
+model ProductMaterial {
+  product_id  Int
+  material_id Int
+  quantity    Int
+
+  product  Product  @relation(fields: [product_id], references: [id])
+  material Material @relation(fields: [material_id], references: [id])
+
+  @@id([product_id, material_id])
+}
