@@ -1,0 +1,18 @@
+type: http_request
+model: http_request
+id: rq_9z9FC9gQGe
+createdAt: 2026-02-04T22:26:03.612962900
+updatedAt: 2026-02-04T22:26:08.523026600
+workspaceId: wk_dwVMisMdv4
+folderId: fl_siWJd5nQ3d
+authentication: {}
+authenticationType: null
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: DELETE
+name: ''
+sortPriority: 0.0
+url: ${[ MAT_ADDR ]}/delete/1
+urlParameters: []

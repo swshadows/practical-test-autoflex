@@ -1,0 +1,28 @@
+type: http_request
+model: http_request
+id: rq_aLahoAftcQ
+createdAt: 2026-02-04T22:14:37.899458
+updatedAt: 2026-02-04T22:23:51.147326
+workspaceId: wk_dwVMisMdv4
+folderId: fl_mgkmyVHw6P
+authentication: {}
+authenticationType: null
+body:
+  text: |-
+    {
+      "id": 1,
+      "name": "B",
+      "value": 13
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: QEKT4jZG7I
+method: PUT
+name: Update a product
+sortPriority: 3000.0
+url: ${[ PROD_ADDR ]}/update
+urlParameters: []

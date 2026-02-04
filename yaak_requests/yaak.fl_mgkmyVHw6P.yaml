@@ -1,0 +1,13 @@
+type: folder
+model: folder
+id: fl_mgkmyVHw6P
+createdAt: 2026-02-04T22:10:14.227218700
+updatedAt: 2026-02-04T22:10:16.100474100
+workspaceId: wk_dwVMisMdv4
+folderId: null
+authentication: {}
+authenticationType: null
+description: ''
+headers: []
+name: Products
+sortPriority: 1000.0

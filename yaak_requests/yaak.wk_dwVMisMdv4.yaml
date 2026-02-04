@@ -1,0 +1,15 @@
+type: workspace
+model: workspace
+id: wk_dwVMisMdv4
+createdAt: 2026-02-04T22:09:44.051595600
+updatedAt: 2026-02-04T22:09:44.051815600
+authentication: {}
+authenticationType: null
+description: ''
+headers: []
+name: practical-test-autoflex
+encryptionKeyChallenge: null
+settingValidateCertificates: true
+settingFollowRedirects: true
+settingRequestTimeout: 0
+settingDnsOverrides: []

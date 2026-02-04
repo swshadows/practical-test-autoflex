@@ -1,0 +1,27 @@
+type: http_request
+model: http_request
+id: rq_tARhdZdPdM
+createdAt: 2026-02-04T22:24:37.138534500
+updatedAt: 2026-02-04T22:25:07.890776
+workspaceId: wk_dwVMisMdv4
+folderId: fl_siWJd5nQ3d
+authentication: {}
+authenticationType: null
+body:
+  text: |-
+    {
+      "name": "M_A",
+      "quantity": 2
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: R5xSRVe6hC
+method: POST
+name: Create a material
+sortPriority: 0.0
+url: ${[ MAT_ADDR ]}/create
+urlParameters: []

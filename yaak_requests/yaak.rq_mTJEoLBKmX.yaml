@@ -1,0 +1,28 @@
+type: http_request
+model: http_request
+id: rq_mTJEoLBKmX
+createdAt: 2026-02-04T22:25:10.426521800
+updatedAt: 2026-02-04T22:25:44.834880
+workspaceId: wk_dwVMisMdv4
+folderId: fl_siWJd5nQ3d
+authentication: {}
+authenticationType: null
+body:
+  text: |-
+    {
+      "id": 1,
+      "name": "M_B",
+      "quantity": 12
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: t69niVxIE3
+method: PUT
+name: Update a material
+sortPriority: 0.0
+url: ${[ MAT_ADDR ]}/update
+urlParameters: []
