@@ -3,3 +3,4 @@ node_modules
 *.sql
 *.db
 backend/generated
+.vscode

@@ -14,3 +14,25 @@ Além da manutenção dos cadastros, deseja-se saber quais produtos (e quais qua
 
 A priorização de quais produtos devem ser sugeridos pelo sistema, deve ser pelos produtos de maior valor, uma vez que uma determinada matéria-prima pode ser utilizada em mais de um produto.
 
+# Como inicializar
+
+> ⚠ É necessário ter [Node.js](https://nodejs.org/pt-br) instalado
+
+1. Clonar o repositório com o comando abaixo:
+	```powershell
+	https://github.com/swshadows/practical-test-autoflex
+	```
+2. Inicializar `backend` com o comando abaixo:
+	```powershell
+	cd backend
+	npm install
+	npx prisma generate
+	npx prisma migrate dev
+	npm run dev
+	```
+3. Inicializar `frontend` com o comando abaixo:
+	```powershell
+	cd frontend
+	npm install
+	npm run dev
+	```
