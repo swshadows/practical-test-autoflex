@@ -1,24 +1,55 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useToast } from 'vue-toastification'
-type Product = {
-  id: number
-  name: string
-  value: number
-}
+import ProductRequests, { type Product, type ProductData } from '@/requests/ProductRequests'
+import MaterialRequests, { type Material } from '@/requests/MaterialRequests'
+import ModalComponent from '@/components/ModalComponent.vue'
+
+const productRequests = new ProductRequests()
+const materialRequests = new MaterialRequests()
+
 const toast = useToast()
 
-const apiUrl = import.meta.env.VITE_API_URL
-const inputs = reactive({ name: '', value: '' as number | string })
-const editing = reactive({} as Product)
-const deleting = reactive({} as Product)
-const products = ref([] as Product[])
+type ProductEditing = Product & {
+  materials: { quantity: number; material: { id: number | string; quantity: number } }[]
+}
 
-function setupEditing(product: Product) {
+const inputs = reactive({
+  name: '',
+  value: '' as number | string,
+  materials: [] as { id: number | string; quantity: number }[],
+})
+const editing = reactive({} as ProductEditing)
+const deleting = reactive({} as Product)
+const data = ref({} as ProductData)
+const maxUnits = computed(() => {
+  if (!data.value.materials || data.value.materials.length === 0) return 0
+
+  let maxUnitsProduced = Infinity
+
+  for (const item of data.value.materials) {
+    const stock = item.material.stock_quantity
+    const needed = item.quantity
+
+    const possibleUnits = Math.floor(stock / needed)
+
+    if (possibleUnits < maxUnitsProduced) {
+      maxUnitsProduced = possibleUnits
+    }
+  }
+
+  return maxUnitsProduced === Infinity ? 0 : maxUnitsProduced
+})
+const products = ref([] as Product[])
+const materials = ref([] as Material[])
+
+async function setupEditing(product: Product) {
   if (deleting.id > 0) setupDeleting({ id: -1, name: '', value: 0 })
-  editing.id = product.id
-  editing.name = product.name
-  editing.value = product.value
+  const dt = await productRequests.getProductById(product.id)
+  editing.id = dt.id
+  editing.name = dt.name
+  editing.value = dt.value
+  editing.materials = dt.materials
 }
 
 function setupDeleting(product: Product) {
@@ -28,38 +59,44 @@ function setupDeleting(product: Product) {
   deleting.value = product.value
 }
 
+async function showData(product: Product) {
+  const dt = await productRequests.getProductById(product.id)
+  data.value = dt
+}
+
 async function addProduct() {
   if (!inputs.name || !inputs.value) return toast.error('Preencha todos os campos')
-  const product = await fetch(`${apiUrl}/products/create`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(inputs),
-  })
-  if (!product.ok) {
-    console.log(product)
+  if (inputs.materials.length === 0) return toast.error('É necessário adicionar materiais')
+  if (inputs.materials.filter((m) => !m.id || !m.quantity).length > 0)
+    return toast.error('Preencha todos os campos para materiais')
+  const product = await productRequests.addProduct(
+    inputs.name,
+    Number(inputs.value),
+    inputs.materials.map((m) => ({ id: Number(m.id), stock_quantity: m.quantity })),
+  )
+  if (!product) {
     return toast.error('Erro ao adicionar produto')
   }
   inputs.name = ''
   inputs.value = ''
+  inputs.materials = []
   toast.success('Produto adicionado com sucesso')
   products.value = await getAllProducts()
 }
 
 async function getAllProducts() {
-  const response = await fetch(`${apiUrl}/products/all`)
-  const data = await response.json()
-  return data
+  return await productRequests.getAllProducts()
 }
 
 async function updateProduct() {
   if (!editing.id || !editing.name || !editing.value) return toast.error('Preencha todos os campos')
-  const product = await fetch(`${apiUrl}/products/update`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(editing),
-  })
-  if (!product.ok) {
-    console.log(product)
+  const product = await productRequests.updateProduct(
+    editing.id,
+    editing.name,
+    Number(editing.value),
+    editing.materials.map((m) => ({ id: Number(m.material.id), stock_quantity: m.quantity })),
+  )
+  if (!product) {
     return toast.error('Erro ao atualizar produto')
   }
   toast.success('Produto atualizado com sucesso')
@@ -70,13 +107,8 @@ async function updateProduct() {
 }
 async function deleteProduct() {
   if (!deleting.id) return toast.error('Preencha todos os campos')
-  const product = await fetch(`${apiUrl}/products/delete/${deleting.id}`, {
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id: deleting.id }),
-  })
-  if (!product.ok) {
-    console.log(product)
+  const product = await productRequests.deleteProduct(deleting.id)
+  if (!product) {
     return toast.error('Erro ao deletar produto')
   }
   toast.success('Produto deletado com sucesso')
@@ -88,20 +120,52 @@ async function deleteProduct() {
 
 onMounted(async () => {
   const prods = await getAllProducts()
-  products.value = prods || []
+  const mats = await materialRequests.getAllMaterials()
+  products.value = prods.sort((a, b) => (a.value > b.value ? -1 : 1)) || []
+  materials.value = mats || []
 })
 </script>
 
 <template>
   <div class="w-full h-full p-1">
-    <div class="grid grid-cols-[40%_40%_1fr] gap-x-1">
+    <div class="grid grid-cols-2 gap-1">
       <h2 class="text-neutral-400 text-center text-xl font-bold col-span-full">
         Adicionar produto
       </h2>
       <input type="text" placeholder="Digite o nome do produto" v-model="inputs.name" />
       <input type="number" placeholder="Digite o valor do produto" v-model="inputs.value" />
+      <div class="col-span-full flex flex-col items-center gap-1">
+        <div v-for="(mat, index) in inputs.materials" :key="index">
+          <select v-model="mat.id">
+            <option disabled value="">Selecione o material</option>
+            <option v-for="m in materials" :key="m.id" :value="m.id">
+              {{ m.name }}
+            </option>
+          </select>
+          <input
+            type="number"
+            placeholder="Digite a quantidade do material"
+            v-model="mat.quantity"
+          />
+        </div>
+        <div class="flex gap-1">
+          <button
+            class="bg-blue-400 hover:bg-blue-300 transition cursor-pointer rounded-md px-2"
+            @click="inputs.materials.push({ id: '', quantity: 0 })"
+          >
+            Adicionar novo material
+          </button>
+          <button
+            class="bg-red-400 hover:bg-red-300 transition cursor-pointer rounded-md px-2"
+            @click="inputs.materials.pop()"
+            :disabled="inputs.materials.length == 0"
+          >
+            Remover ultimo material
+          </button>
+        </div>
+      </div>
       <button
-        class="p-2 cursor-pointer bg-green-400 hover:bg-green-300 transition rounded-lg"
+        class="col-span-full p-2 cursor-pointer bg-green-400 hover:bg-green-300 transition rounded-lg"
         @click="addProduct"
       >
         Adicionar
@@ -137,37 +201,74 @@ onMounted(async () => {
               >
                 Deletar
               </button>
+              <button
+                class="px-2 cursor-pointer bg-green-300 hover:bg-green-400"
+                @click="showData(product)"
+              >
+                Calcular
+              </button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <div v-if="editing.id > 0" class="flex flex-col gap-2 relative">
-      <button
-        class="absolute right-0 top-4 text-neutral-400 hover:text-red-400 hover:underline cursor-pointer"
-        @click="setupEditing({ id: -1, name: '', value: 0 })"
-      >
-        Cancelar
-      </button>
-      <h2 class="my-3 text-neutral-400 text-center text-xl font-bold">Editar produto</h2>
-      <input type="text" placeholder="Digite o nome do produto" v-model="editing.name" />
-      <input type="number" placeholder="Digite o valor do produto" v-model="editing.value" />
-      <button
-        class="p-2 cursor-pointer bg-blue-400 hover:bg-blue-300 transition rounded-lg"
-        @click="updateProduct"
-      >
-        Salvar
-      </button>
-    </div>
+    <ModalComponent
+      v-if="editing.id > 0"
+      @close="editing.id = -1"
+      body-classes="flex flex-col gap-2 h-max p-1"
+    >
+      <div class="grid grid-cols-2 gap-1">
+        <h2 class="my-3 col-span-full text-neutral-400 text-center text-xl font-bold">
+          Editar produto
+        </h2>
+        <input type="text" placeholder="Digite o nome do produto" v-model="editing.name" />
+        <input type="number" placeholder="Digite o valor do produto" v-model="editing.value" />
+        <div class="col-span-full flex flex-col items-center gap-1">
+          <div v-for="(mat, index) in editing.materials" :key="index">
+            <select v-model="mat.material.id">
+              <option disabled value="">Selecione o material</option>
+              <option v-for="m in materials" :key="m.id" :value="m.id">
+                {{ m.name }}
+              </option>
+            </select>
+            <input
+              type="number"
+              placeholder="Digite a quantidade do material"
+              v-model="mat.quantity"
+            />
+          </div>
+          <div class="flex gap-1">
+            <button
+              class="bg-blue-400 hover:bg-blue-300 transition cursor-pointer rounded-md px-2"
+              @click="editing.materials.push({ quantity: 0, material: { id: '', quantity: 0 } })"
+            >
+              Adicionar novo material
+            </button>
+            <button
+              class="bg-red-400 hover:bg-red-300 transition cursor-pointer rounded-md px-2"
+              @click="editing.materials.pop()"
+              :disabled="editing.materials.length === 0"
+            >
+              Remover ultimo material
+            </button>
+          </div>
+        </div>
 
-    <div v-if="deleting.id > 0" class="flex flex-col relative">
-      <button
-        class="absolute right-0 top-4 text-neutral-400 hover:text-red-400 hover:underline cursor-pointer"
-        @click="setupDeleting({ id: -1, name: '', value: 0 })"
-      >
-        Cancelar
-      </button>
+        <button
+          class="p-2 col-span-full cursor-pointer bg-blue-400 hover:bg-blue-300 transition rounded-lg"
+          @click="updateProduct"
+        >
+          Salvar
+        </button>
+      </div>
+    </ModalComponent>
+
+    <ModalComponent
+      v-if="deleting.id > 0"
+      @close="deleting.id = -1"
+      body-classes="flex flex-col h-max p-1"
+    >
       <h2 class="my-3 text-red-400 text-center text-xl font-bold">Deletar produto</h2>
       <button
         class="p-2 cursor-pointer bg-gray-400 hover:bg-red-300 transition rounded-lg"
@@ -176,6 +277,34 @@ onMounted(async () => {
         Confirmar deleção do produto:
         <span class="font-bold text-white">{{ deleting.name }}</span>
       </button>
-    </div>
+    </ModalComponent>
+
+    <ModalComponent v-if="data.id > 0" @close="data.id = -1" body-classes="p-1">
+      <h2 class="my-3 text-neutral-400 text-center text-xl font-bold">
+        Dados do produto: {{ data.name }}
+      </h2>
+      <table class="w-full mx-auto">
+        <thead class="bg-neutral-400">
+          <tr>
+            <th>Material</th>
+            <th>Quantidade necessária</th>
+            <th>Estoque</th>
+          </tr>
+        </thead>
+        <tbody class="bg-neutral-300 text-center">
+          <tr v-for="(material, index) in data.materials" :key="index">
+            <td>{{ material.material.name }}</td>
+            <td>{{ material.quantity.toLocaleString('pt-BR') }}</td>
+            <td>
+              {{ material.material.stock_quantity.toLocaleString('pt-BR') }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 class="text-center text-xl font-bold text-blue-500">
+        É possível criar {{ maxUnits }} unidades do produto
+      </h2>
+    </ModalComponent>
   </div>
 </template>

@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_tARhdZdPdM
 createdAt: 2026-02-04T22:24:37.138534500
-updatedAt: 2026-02-04T22:25:07.890776
+updatedAt: 2026-02-05T18:24:10.116263
 workspaceId: wk_dwVMisMdv4
 folderId: fl_siWJd5nQ3d
 authentication: {}
@@ -10,8 +10,8 @@ authenticationType: null
 body:
   text: |-
     {
-      "name": "M_A",
-      "quantity": 2
+      "name": "www",
+      "quantity": 23
     }
 bodyType: application/json
 description: ''

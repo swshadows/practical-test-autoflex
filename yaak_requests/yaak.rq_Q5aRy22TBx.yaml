@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_Q5aRy22TBx
 createdAt: 2026-02-04T22:11:31.533043200
-updatedAt: 2026-02-04T22:23:44.172008700
+updatedAt: 2026-02-05T18:55:44.705852
 workspaceId: wk_dwVMisMdv4
 folderId: fl_mgkmyVHw6P
 authentication: {}
@@ -10,8 +10,18 @@ authenticationType: null
 body:
   text: |-
     {
-      "name": "A",
-      "value": 12
+      "name": "qw",
+      "value": 12,
+      "materials": [
+        {
+        "id": 4,
+        "stock_quantity": 2
+        },
+        {
+          "id": 4,
+          "stock_quantity": 3
+        }
+      ]
     }
 bodyType: application/json
 description: ''

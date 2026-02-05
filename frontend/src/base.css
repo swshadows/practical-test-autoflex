@@ -2,6 +2,13 @@
 @import 'tailwindcss';
 
 input,
-textarea {
+textarea,
+select {
   @apply border border-gray-300 rounded-md p-2 bg-neutral-300 outline-0;
+}
+
+*:disabled {
+  cursor: not-allowed !important;
+  background-color: #b4b4b4 !important;
+  color: #545454 !important;
 }

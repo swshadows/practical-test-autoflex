@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_K8d8645gft
 createdAt: 2026-02-04T22:11:08.978175600
-updatedAt: 2026-02-04T22:23:38.411052200
+updatedAt: 2026-02-05T18:29:47.284768
 workspaceId: wk_dwVMisMdv4
 folderId: fl_mgkmyVHw6P
 authentication: {}
@@ -14,5 +14,5 @@ headers: []
 method: GET
 name: Get a product
 sortPriority: 1000.0
-url: ${[ PROD_ADDR ]}/1
+url: ${[ PROD_ADDR ]}/8
 urlParameters: []

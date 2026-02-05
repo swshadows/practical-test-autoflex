@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { useToast } from 'vue-toastification'
+import MaterialRequests from '@/requests/MaterialRequests'
+import ModalComponent from '@/components/ModalComponent.vue'
+
+const materialRequests = new MaterialRequests()
 type Material = {
   id: number
   name: string
@@ -8,7 +12,6 @@ type Material = {
 }
 const toast = useToast()
 
-const apiUrl = import.meta.env.VITE_API_URL
 const inputs = reactive({ name: '', stock_quantity: '' as number | string })
 const editing = reactive({} as Material)
 const deleting = reactive({} as Material)
@@ -30,13 +33,8 @@ function setupDeleting(material: Material) {
 
 async function addMaterial() {
   if (!inputs.name || !inputs.stock_quantity) return toast.error('Preencha todos os campos')
-  const material = await fetch(`${apiUrl}/materials/create`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(inputs),
-  })
-  if (!material.ok) {
-    console.log(material)
+  const material = await materialRequests.addMaterial(inputs.name, Number(inputs.stock_quantity))
+  if (!material) {
     return toast.error('Erro ao adicionar material')
   }
   inputs.name = ''
@@ -46,21 +44,18 @@ async function addMaterial() {
 }
 
 async function getAllMaterials() {
-  const response = await fetch(`${apiUrl}/materials/all`)
-  const data = await response.json()
-  return data
+  return await materialRequests.getAllMaterials()
 }
 
 async function updateMaterial() {
   if (!editing.id || !editing.name || !editing.stock_quantity)
     return toast.error('Preencha todos os campos')
-  const material = await fetch(`${apiUrl}/materials/update`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(editing),
-  })
-  if (!material.ok) {
-    console.log(material)
+  const material = await materialRequests.updateMaterial(
+    editing.id,
+    editing.name,
+    Number(editing.stock_quantity),
+  )
+  if (!material) {
     return toast.error('Erro ao atualizar material')
   }
   toast.success('Material atualizado com sucesso')
@@ -71,12 +66,8 @@ async function updateMaterial() {
 }
 async function deleteMaterial() {
   if (!deleting.id) return toast.error('Preencha todos os campos')
-  const material = await fetch(`${apiUrl}/materials/delete/${deleting.id}`, {
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id: deleting.id }),
-  })
-  if (!material.ok) {
+  const material = await materialRequests.deleteMaterial(deleting.id)
+  if (!material) {
     console.log(material)
     return toast.error('Erro ao deletar material')
   }
@@ -146,13 +137,11 @@ onMounted(async () => {
       </table>
     </div>
 
-    <div v-if="editing.id > 0" class="flex flex-col gap-2 relative">
-      <button
-        class="absolute right-0 top-4 text-neutral-400 hover:text-red-400 hover:underline cursor-pointer"
-        @click="setupEditing({ id: -1, name: '', stock_quantity: 0 })"
-      >
-        Cancelar
-      </button>
+    <ModalComponent
+      v-if="editing.id > 0"
+      @close="editing.id = -1"
+      body-classes="flex flex-col gap-2 h-max p-1"
+    >
       <h2 class="my-3 text-neutral-400 text-center text-xl font-bold">Editar material</h2>
       <input type="text" placeholder="Digite o nome do material" v-model="editing.name" />
       <input
@@ -166,15 +155,13 @@ onMounted(async () => {
       >
         Salvar
       </button>
-    </div>
+    </ModalComponent>
 
-    <div v-if="deleting.id > 0" class="flex flex-col relative">
-      <button
-        class="absolute right-0 top-4 text-neutral-400 hover:text-red-400 hover:underline cursor-pointer"
-        @click="setupDeleting({ id: -1, name: '', stock_quantity: 0 })"
-      >
-        Cancelar
-      </button>
+    <ModalComponent
+      v-if="deleting.id > 0"
+      @close="deleting.id = -1"
+      body-classes="flex flex-col h-max p-1"
+    >
       <h2 class="my-3 text-red-400 text-center text-xl font-bold">Deletar material</h2>
       <button
         class="p-2 cursor-pointer bg-gray-400 hover:bg-red-300 transition rounded-lg"
@@ -183,6 +170,6 @@ onMounted(async () => {
         Confirmar deleção do material:
         <span class="font-bold text-white">{{ deleting.name }}</span>
       </button>
-    </div>
+    </ModalComponent>
   </div>
 </template>
