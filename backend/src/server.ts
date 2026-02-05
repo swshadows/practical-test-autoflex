@@ -4,7 +4,7 @@ import { testRoutes, productRoutes, materialRoutes } from "./routes/routes.js";
 
 const server = fastify();
 
-server.register(fastifyCors, { origin: "*" });
+server.register(fastifyCors, { origin: "*", methods: ["GET", "POST", "PUT", "DELETE"] });
 
 server.register(testRoutes, { prefix: "/" });
 server.register(productRoutes, { prefix: "/products" });

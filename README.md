@@ -22,7 +22,7 @@ A priorização de quais produtos devem ser sugeridos pelo sistema, deve ser pel
 	```powershell
 	https://github.com/swshadows/practical-test-autoflex
 	```
-2. Preencher os arquivos `.env` de cada pasta.
+2. Criar os arquivos `.env` de cada pasta. Arquivos `.env.example` contem instruções e podem ser renomeados para `.env`.
 3. Inicializar `backend` com o comando abaixo:
 	```powershell
 	cd backend
