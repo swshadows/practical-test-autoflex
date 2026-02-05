@@ -22,7 +22,8 @@ A priorização de quais produtos devem ser sugeridos pelo sistema, deve ser pel
 	```powershell
 	https://github.com/swshadows/practical-test-autoflex
 	```
-2. Inicializar `backend` com o comando abaixo:
+2. Preencher os arquivos `.env` de cada pasta.
+3. Inicializar `backend` com o comando abaixo:
 	```powershell
 	cd backend
 	npm install
@@ -30,7 +31,7 @@ A priorização de quais produtos devem ser sugeridos pelo sistema, deve ser pel
 	npx prisma migrate dev
 	npm run dev
 	```
-3. Inicializar `frontend` com o comando abaixo:
+4. Inicializar `frontend` com o comando abaixo:
 	```powershell
 	cd frontend
 	npm install

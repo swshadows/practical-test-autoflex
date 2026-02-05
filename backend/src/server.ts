@@ -1,7 +1,10 @@
 import fastify from "fastify";
+import fastifyCors from "@fastify/cors";
 import { testRoutes, productRoutes, materialRoutes } from "./routes/routes.js";
 
 const server = fastify();
+
+server.register(fastifyCors, { origin: "*" });
 
 server.register(testRoutes, { prefix: "/" });
 server.register(productRoutes, { prefix: "/products" });
