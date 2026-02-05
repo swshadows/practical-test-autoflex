@@ -1,2 +1,7 @@
 @import 'https://www.nerdfonts.com/assets/css/webfont.css';
 @import 'tailwindcss';
+
+input,
+textarea {
+  @apply border border-gray-300 rounded-md p-2 bg-neutral-300 outline-0;
+}
