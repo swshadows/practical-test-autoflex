@@ -3,14 +3,14 @@ import MaterialService from "../services/MaterialService";
 const materialService = new MaterialService();
 export default class MaterialController {
 	static async createMaterial(
-		request: FastifyRequest<{ Body: { name: string; quantity: number } }>,
+		request: FastifyRequest<{ Body: { name: string; stock_quantity: number } }>,
 		reply: FastifyReply,
 	) {
-		const { name = null, quantity = null } = request.body ?? {};
-		if (!name || !quantity) {
-			return reply.code(400).send({ error: "Name and quantity are required" });
+		const { name = null, stock_quantity = null } = request.body ?? {};
+		if (!name || !stock_quantity) {
+			return reply.code(400).send({ error: "Name and stock_quantity are required" });
 		}
-		const material = await materialService.createMaterial(name, quantity);
+		const material = await materialService.createMaterial(name, stock_quantity);
 		return material;
 	}
 	static async getAllMaterials(request: FastifyRequest, reply: FastifyReply) {
@@ -27,14 +27,14 @@ export default class MaterialController {
 	}
 
 	static async updateMaterial(
-		request: FastifyRequest<{ Body: { id: string; name: string; quantity: number } }>,
+		request: FastifyRequest<{ Body: { id: string; name: string; stock_quantity: number } }>,
 		reply: FastifyReply,
 	) {
-		const { id = null, name = null, quantity = null } = request.body ?? {};
-		if (!id || !name || !quantity) {
-			return reply.code(400).send({ error: "Id, name and quantity are required" });
+		const { id = null, name = null, stock_quantity = null } = request.body ?? {};
+		if (!id || !name || !stock_quantity) {
+			return reply.code(400).send({ error: "Id, name and stock_quantity are required" });
 		}
-		const material = await materialService.updateMaterial(Number(id), name, quantity);
+		const material = await materialService.updateMaterial(Number(id), name, stock_quantity);
 		return material;
 	}
 	static async deleteMaterial(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
