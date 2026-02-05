@@ -20,7 +20,7 @@ A priorização de quais produtos devem ser sugeridos pelo sistema, deve ser pel
 
 1. Clonar o repositório com o comando abaixo:
 	```powershell
-	https://github.com/swshadows/practical-test-autoflex
+	git clone https://github.com/swshadows/practical-test-autoflex.git
 	```
 2. Criar os arquivos `.env` de cada pasta. Arquivos `.env.example` contem instruções e podem ser renomeados para `.env`.
 3. Inicializar `backend` com o comando abaixo:
@@ -37,3 +37,4 @@ A priorização de quais produtos devem ser sugeridos pelo sistema, deve ser pel
 	npm install
 	npm run dev
 	```
+5. Acessar o projeto em `http://localhost:5173/`
